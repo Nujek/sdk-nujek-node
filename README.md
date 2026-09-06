@@ -20,6 +20,8 @@ await client.cancelOrder(order.data.uuid, { reason: 'Customer membatalkan order'
 await client.reviewDriver(order.data.uuid, { rating: 5, comment: 'Pelayanan baik' });
 await client.sendOrderChatMessage(order.data.uuid, { message: 'Driver, mohon ke lokasi pickup' });
 const messages = await client.getOrderChatMessages(order.data.uuid, { page: 1, limit: 50 });
+const orders = await client.listOrders({ page: 1, limit: 10, status: 'ACCEPTED' });
+const detail = await client.showOrder(order.data.uuid);
 ```
 
 Setiap request ditandatangani otomatis menggunakan `X-Client-Key`, `X-Timestamp`, `X-Nonce`, dan `X-Signature` HMAC-SHA256. Method mengembalikan envelope API `{ data, message }`; error akan melempar `NujekApiError`.

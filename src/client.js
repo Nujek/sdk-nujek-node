@@ -27,6 +27,8 @@ export class NujekClient {
   pricingPreview(params = {}) { return this.#request('GET', '/pricing/preview', params); }
   routingDistance(payload) { return this.#post('/routing/distance', payload); }
   createOrder(payload) { return this.#post('/orders', payload); }
+  listOrders(params = {}) { return this.#request('GET', '/orders', params); }
+  showOrder(orderUuid) { return this.#request('GET', `/orders/${encodeURIComponent(orderUuid)}`); }
   cancelOrder(orderUuid, payload = {}) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/cancel`, payload); }
   reviewDriver(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/review-driver`, payload); }
   sendOrderChatMessage(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/chat/customer_driver/messages`, payload); }

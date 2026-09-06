@@ -25,13 +25,16 @@ async function handler(req, res) {
     if (req.method === 'POST' && url.pathname === '/register') result = await client.register(await body(req));
     else if (req.method === 'GET' && url.pathname === '/pricing') result = await client.pricingPreview(Object.fromEntries(url.searchParams));
     else if (req.method === 'POST' && url.pathname === '/routing') result = await client.routingDistance(await body(req));
+    else if (req.method === 'GET' && url.pathname === '/orders') result = await client.listOrders(Object.fromEntries(url.searchParams));
     else if (req.method === 'POST' && url.pathname === '/orders') result = await client.createOrder(await body(req));
     else {
+      const show = url.pathname.match(/^\/orders\/([^/]+)$/);
       const cancel = url.pathname.match(/^\/orders\/([^/]+)\/cancel$/);
       const review = url.pathname.match(/^\/orders\/([^/]+)\/review-driver$/);
       // Terima bentuk singular dan plural untuk kemudahan kompatibilitas Postman.
       const chat = url.pathname.match(/^\/orders\/([^/]+)\/chat\/(?:message|messages)$/);
-      if (req.method === 'POST' && cancel) result = await client.cancelOrder(cancel[1], await body(req));
+      if (req.method === 'GET' && show) result = await client.showOrder(show[1]);
+      else if (req.method === 'POST' && cancel) result = await client.cancelOrder(cancel[1], await body(req));
       else if (req.method === 'POST' && review) result = await client.reviewDriver(review[1], await body(req));
       else if (chat && req.method === 'POST') result = await client.sendOrderChatMessage(chat[1], await body(req));
       else if (chat && req.method === 'GET') result = await client.getOrderChatMessages(chat[1], Object.fromEntries(url.searchParams));

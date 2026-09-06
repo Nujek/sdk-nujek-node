@@ -17,6 +17,8 @@ Endpoint Postman:
 | GET | `/pricing?service_id=1&sub_service_id=1&regency_id=7171&distance_km=5.5` | - |
 | POST | `/routing` | `{ "mode": "motorcycle", "routes": [{ "latitude": -7.25, "longitude": 112.76 }, { "latitude": -7.26, "longitude": 112.78 }] }` |
 | POST | `/orders` | Body order Partner API lengkap |
+| GET | `/orders?page=1&limit=10&status=ACCEPTED` | - |
+| GET | `/orders/{order_uuid}` | - |
 | POST | `/orders/{order_uuid}/cancel` | `{ "reason": "Customer membatalkan order" }` |
 | POST | `/orders/{order_uuid}/review-driver` | `{ "rating": 5, "comment": "Pelayanan baik" }` |
 | POST | `/orders/{order_uuid}/chat/messages` | `{ "message": "Driver, mohon ke pickup" }` |
