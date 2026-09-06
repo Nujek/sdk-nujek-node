@@ -19,5 +19,7 @@ Endpoint Postman:
 | POST | `/orders` | Body order Partner API lengkap |
 | POST | `/orders/{order_uuid}/cancel` | `{ "reason": "Customer membatalkan order" }` |
 | POST | `/orders/{order_uuid}/review-driver` | `{ "rating": 5, "comment": "Pelayanan baik" }` |
+| POST | `/orders/{order_uuid}/chat/messages` | `{ "message": "Driver, mohon ke pickup" }` |
+| GET | `/orders/{order_uuid}/chat/messages?page=1&limit=50` | - |
 
 Semua request ke server upstream ditandatangani SDK secara otomatis.

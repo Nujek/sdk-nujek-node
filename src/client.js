@@ -29,6 +29,8 @@ export class NujekClient {
   createOrder(payload) { return this.#post('/orders', payload); }
   cancelOrder(orderUuid, payload = {}) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/cancel`, payload); }
   reviewDriver(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/review-driver`, payload); }
+  sendOrderChatMessage(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/chat/customer_driver/messages`, payload); }
+  getOrderChatMessages(orderUuid, { page, limit } = {}) { return this.#request('GET', `/orders/${encodeURIComponent(orderUuid)}/chat/customer_driver/messages`, { page, limit }); }
 
   async #post(path, payload) { return this.#request('POST', path, undefined, payload); }
 

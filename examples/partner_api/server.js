@@ -29,8 +29,11 @@ async function handler(req, res) {
     else {
       const cancel = url.pathname.match(/^\/orders\/([^/]+)\/cancel$/);
       const review = url.pathname.match(/^\/orders\/([^/]+)\/review-driver$/);
+      const chat = url.pathname.match(/^\/orders\/([^/]+)\/chat\/messages$/);
       if (req.method === 'POST' && cancel) result = await client.cancelOrder(cancel[1], await body(req));
       else if (req.method === 'POST' && review) result = await client.reviewDriver(review[1], await body(req));
+      else if (chat && req.method === 'POST') result = await client.sendOrderChatMessage(chat[1], await body(req));
+      else if (chat && req.method === 'GET') result = await client.getOrderChatMessages(chat[1], Object.fromEntries(url.searchParams));
       else return json(res, 404, { error: 'route not found' });
     }
     json(res, 200, result);
