@@ -22,4 +22,6 @@ Endpoint Postman:
 | POST | `/orders/{order_uuid}/chat/messages` | `{ "message": "Driver, mohon ke pickup" }` |
 | GET | `/orders/{order_uuid}/chat/messages?page=1&limit=50` | - |
 
+Alias `/orders/{order_uuid}/chat/message` (singular) juga diterima oleh example.
+
 Semua request ke server upstream ditandatangani SDK secara otomatis.
