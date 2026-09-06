@@ -1,0 +1,10 @@
+{
+  "name": "@nujek/sdk",
+  "version": "0.1.0",
+  "description": "Node.js SDK for Nujek Partner API",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": ".",
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node --test", "example": "node examples/partner_api/server.js" }
+}
