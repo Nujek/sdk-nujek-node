@@ -2,6 +2,12 @@
 
 Node.js SDK untuk Partner API Nujek. Memerlukan Node.js 18+ karena memakai `fetch` bawaan dan tidak membutuhkan dependency eksternal.
 
+## Instalasi
+
+```bash
+npm install github:Nujek/sdk-nujek-node#v0.3.0
+```
+
 ```js
 import { NujekClient } from '@nujek/sdk';
 import crypto from 'node:crypto';
