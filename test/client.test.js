@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import { NujekClient, parseChatMessageWebhook, verifyWebhookSignature } from '../src/index.js';
+import {
+  NujekClient,
+  WEBHOOK_EVENTS,
+  isKnownWebhookEvent,
+  parseChatMessageWebhook,
+  parseWebhook,
+  verifyWebhook,
+  verifyWebhookSignature,
+} from '../src/index.js';
 
 test('creates HMAC signed request', async () => {
   let request;
@@ -77,5 +85,34 @@ test('verifies and parses chat.message webhook', () => {
   assert.equal(verifyWebhookSignature({ webhookSecret, timestamp, deliveryId, rawBody, signature }), true);
   assert.equal(verifyWebhookSignature({ webhookSecret, timestamp, deliveryId, rawBody: Buffer.from('tampered'), signature }), false);
   assert.equal(parseChatMessageWebhook(rawBody).data.message_id, 50);
-  assert.throws(() => parseChatMessageWebhook('{"event":"order.updated"}'), /bukan chat.message/);
+  assert.throws(
+    () => parseChatMessageWebhook('{"event":"order.updated","occurred_at":"2026-09-10T14:37:06Z","data":{}}'),
+    /bukan chat.message/,
+  );
+});
+
+test('verifies webhook timestamp freshness', () => {
+  const rawBody = Buffer.from('{"event":"order.created","occurred_at":"2023-11-14T22:13:20Z","data":{"order_uuid":"order-uuid","status":"PENDING","driver_uuid":null}}');
+  const webhookSecret = 'webhook-secret';
+  const timestamp = '1700000000';
+  const deliveryId = '3e1a6e70-3602-4a57-a092-078b2d8f22a1';
+  const signature = crypto.createHmac('sha256', webhookSecret)
+    .update(`${timestamp}\n${deliveryId}\n`)
+    .update(rawBody)
+    .digest('hex');
+  const request = { webhookSecret, timestamp, deliveryId, rawBody, signature };
+
+  assert.equal(verifyWebhook({ ...request, now: 1700000120000 }), true);
+  assert.equal(verifyWebhook({ ...request, now: 1700000600000 }), false);
+  assert.equal(verifyWebhook({ ...request, rawBody: Buffer.from('tampered'), now: 1700000120000 }), false);
+});
+
+test('parses known and future webhook events', () => {
+  const known = parseWebhook('{"event":"order.created","occurred_at":"2026-09-10T14:37:06Z","data":{"order_uuid":"order-uuid","status":"PENDING"}}');
+  assert.equal(known.event, WEBHOOK_EVENTS.ORDER_CREATED);
+  assert.equal(isKnownWebhookEvent(known.event), true);
+
+  const future = parseWebhook('{"event":"order.future_event","occurred_at":"2026-09-10T14:37:06Z","data":{"value":1}}');
+  assert.equal(isKnownWebhookEvent(future.event), false);
+  assert.throws(() => parseWebhook('{"event":"order.created"}'), /envelope webhook tidak lengkap/);
 });

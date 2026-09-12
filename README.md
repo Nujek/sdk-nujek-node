@@ -5,7 +5,7 @@ Node.js SDK untuk Partner API Nujek. Memerlukan Node.js 18+ karena memakai `fetc
 ## Instalasi
 
 ```bash
-npm install github:Nujek/sdk-nujek-node#v0.4.0
+npm install github:Nujek/sdk-nujek-node#v0.5.0
 ```
 
 ```js
@@ -40,9 +40,9 @@ Chat client menggunakan percakapan `customer_driver`. Pesan client dikirim atas 
 Verifikasi webhook menggunakan raw body sebelum JSON diparsing:
 
 ```js
-import { parseChatMessageWebhook, verifyWebhookSignature } from '@nujek/sdk';
+import { parseWebhook, verifyWebhook } from '@nujek/sdk';
 
-const valid = verifyWebhookSignature({
+const valid = verifyWebhook({
   webhookSecret: process.env.CLIENT_WEBHOOK_SECRET,
   timestamp: req.headers['x-webhook-timestamp'],
   deliveryId: req.headers['x-webhook-id'],
@@ -51,5 +51,8 @@ const valid = verifyWebhookSignature({
 });
 if (!valid) throw new Error('Invalid webhook signature');
 
-const event = parseChatMessageWebhook(rawBody);
+const event = parseWebhook(rawBody);
 ```
+
+Konstanta seluruh event, struktur payload, idempotensi, dan contoh receiver
+tersedia di [WEBHOOKS.md](./WEBHOOKS.md).
