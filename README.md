@@ -5,7 +5,7 @@ Node.js SDK untuk Partner API Nujek. Memerlukan Node.js 18+ karena memakai `fetc
 ## Instalasi
 
 ```bash
-npm install github:Nujek/sdk-nujek-node#v0.3.0
+npm install github:Nujek/sdk-nujek-node#v0.4.0
 ```
 
 ```js
@@ -26,6 +26,9 @@ await client.cancelOrder(order.data.uuid, { reason: 'Customer membatalkan order'
 await client.reviewDriver(order.data.uuid, { rating: 5, comment: 'Pelayanan baik' });
 await client.sendOrderChatMessage(order.data.uuid, { message: 'Driver, mohon ke lokasi pickup' });
 const messages = await client.getOrderChatMessages(order.data.uuid, { page: 1, limit: 50 });
+// Alias yang konsisten dengan SDK Go juga tersedia:
+await client.sendChatMessage(order.data.uuid, { message: 'Driver, mohon ke lokasi pickup' });
+const chatPage = await client.listChatMessages(order.data.uuid, { page: 1, limit: 50 });
 const orders = await client.listOrders({ page: 1, limit: 10, status: 'ACCEPTED' });
 const detail = await client.showOrder(order.data.uuid);
 ```
@@ -33,3 +36,20 @@ const detail = await client.showOrder(order.data.uuid);
 Setiap request ditandatangani otomatis menggunakan `X-Client-Key`, `X-Timestamp`, `X-Nonce`, dan `X-Signature` HMAC-SHA256. Method mengembalikan envelope API `{ data, message }`; error akan melempar `NujekApiError`.
 
 Chat client menggunakan percakapan `customer_driver`. Pesan client dikirim atas nama customer pemilik order, sedangkan balasan driver akan dikirim ke webhook client sebagai event `chat.message`.
+
+Verifikasi webhook menggunakan raw body sebelum JSON diparsing:
+
+```js
+import { parseChatMessageWebhook, verifyWebhookSignature } from '@nujek/sdk';
+
+const valid = verifyWebhookSignature({
+  webhookSecret: process.env.CLIENT_WEBHOOK_SECRET,
+  timestamp: req.headers['x-webhook-timestamp'],
+  deliveryId: req.headers['x-webhook-id'],
+  rawBody,
+  signature: req.headers['x-webhook-signature'],
+});
+if (!valid) throw new Error('Invalid webhook signature');
+
+const event = parseChatMessageWebhook(rawBody);
+```

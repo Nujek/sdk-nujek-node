@@ -27,3 +27,6 @@ Endpoint Postman:
 Alias `/orders/{order_uuid}/chat/message` (singular) juga diterima oleh example.
 
 Semua request ke server upstream ditandatangani SDK secara otomatis.
+
+SDK juga mengekspor `verifyWebhookSignature` dan `parseChatMessageWebhook` untuk
+memverifikasi serta membaca balasan driver melalui webhook `chat.message`.

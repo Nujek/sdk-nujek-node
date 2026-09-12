@@ -31,8 +31,22 @@ export class NujekClient {
   showOrder(orderUuid) { return this.#request('GET', `/orders/${encodeURIComponent(orderUuid)}`); }
   cancelOrder(orderUuid, payload = {}) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/cancel`, payload); }
   reviewDriver(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/review-driver`, payload); }
-  sendOrderChatMessage(orderUuid, payload) { return this.#post(`/orders/${encodeURIComponent(orderUuid)}/chat/customer_driver/messages`, payload); }
-  getOrderChatMessages(orderUuid, { page, limit } = {}) { return this.#request('GET', `/orders/${encodeURIComponent(orderUuid)}/chat/customer_driver/messages`, { page, limit }); }
+  sendOrderChatMessage(orderUuid, payload) {
+    const normalizedOrderUuid = validateOrderUuid(orderUuid);
+    validateChatMessage(payload);
+    return this.#post(`/orders/${encodeURIComponent(normalizedOrderUuid)}/chat/customer_driver/messages`, payload);
+  }
+
+  getOrderChatMessages(orderUuid, { page, limit } = {}) {
+    const normalizedOrderUuid = validateOrderUuid(orderUuid);
+    validatePositiveInteger(page, 'page');
+    validatePositiveInteger(limit, 'limit');
+    return this.#request('GET', `/orders/${encodeURIComponent(normalizedOrderUuid)}/chat/customer_driver/messages`, { page, limit });
+  }
+
+  // Aliases aligned with the other Nujek SDKs.
+  sendChatMessage(orderUuid, payload) { return this.sendOrderChatMessage(orderUuid, payload); }
+  listChatMessages(orderUuid, params = {}) { return this.getOrderChatMessages(orderUuid, params); }
 
   async #post(path, payload) { return this.#request('POST', path, undefined, payload); }
 
@@ -56,5 +70,23 @@ export class NujekClient {
       throw new NujekApiError(response.status, error.message || text || response.statusText, error.code || '', error.fields || null);
     }
     return data;
+  }
+}
+
+function validateOrderUuid(orderUuid) {
+  if (typeof orderUuid !== 'string' || !orderUuid.trim()) throw new Error('order UUID wajib diisi');
+  return orderUuid.trim();
+}
+
+function validateChatMessage(payload) {
+  if (!payload || typeof payload !== 'object' || typeof payload.message !== 'string' || !payload.message.trim()) {
+    throw new Error('pesan chat wajib diisi');
+  }
+  if ([...payload.message].length > 1000) throw new Error('pesan chat maksimal 1000 karakter');
+}
+
+function validatePositiveInteger(value, name) {
+  if (value !== undefined && value !== null && (!Number.isSafeInteger(Number(value)) || Number(value) <= 0)) {
+    throw new Error(`${name} harus berupa bilangan bulat lebih dari nol`);
   }
 }
